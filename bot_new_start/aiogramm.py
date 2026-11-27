@@ -53,7 +53,6 @@ async def get_exchange_rate(message: Message):
 async def start_converter(message: Message, state: FSMContext): 
     await state.set_state(Convertor.waiting_amount)
     await message.answer("Введіть суму в гривнях:")
-    await state.clear()
 
 @dp.message(Convertor.waiting_amount)
 async def convert_currency(message: Message, state: FSMContext):
@@ -62,13 +61,12 @@ async def convert_currency(message: Message, state: FSMContext):
         usd, eur, _ = get_rates()
     except ValueError:
         await message.answer("Будь ласка, введіть коректну числову суму.")
-        return False
     else:
         converted_usd = amount / usd
         converted_eur = amount / eur
         await message.answer(f"Сума в доларах: {converted_usd:.2f}\n"
                              f"Сума в євро: {converted_eur:.2f}")
-    return True
+        await state.clear()
 
 @dp.message(F.text == "ℹ️ Допомога")
 async def help_command(message: Message):
